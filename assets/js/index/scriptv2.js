@@ -36,7 +36,7 @@ function handleScroll() {
   // rect.bottom > 0: phần dưới của element vẫn còn trong viewport
   if (rect.top < windowHeight && rect.bottom > 0) {
     // Offset để tạo delay cho animation (5% của quá trình scroll)
-    const animationOffset = 0.05;
+    const animationOffset = 0.1;
 
     // Tính toán progress của scroll (từ 0 đến 1)
     // Công thức: (windowHeight - rect.top) / (windowHeight + rect.height) - animationOffset
