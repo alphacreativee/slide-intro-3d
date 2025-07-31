@@ -84,7 +84,7 @@ function handleScroll() {
         translateX = 9 * clampedProgress; // Dịch chuyển 9vw sang phải
       }
 
-      // Sử dụng GSAP.set() để áp dụng transform mượt mà hơn
+      // Áp dụng transform với GSAP
       gsap.set(slide, {
         x: `${translateX}vw`,
         z: `${translateZ}vw`,
@@ -92,6 +92,47 @@ function handleScroll() {
       });
     });
   }
+}
+
+// Hàm xử lý hover effect cho slide
+function setupHoverEffect(slide) {
+  slide.addEventListener("mousemove", (e) => {
+    // Lấy kích thước và vị trí của slide
+    const rect = slide.getBoundingClientRect();
+
+    // Tính toán vị trí chuột tương đối so với trung tâm của slide
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const mouseX = e.clientX - centerX;
+    const mouseY = e.clientY - centerY;
+
+    // Tính góc nghiêng dựa trên vị trí chuột
+    // rotateY: nghiêng theo trục Y (trái/phải)
+    // rotateX: nghiêng theo trục X (lên/xuống)
+    const maxRotate = 10; // Góc nghiêng tối đa (độ)
+    const rotateY = (mouseX / (rect.width / 2)) * maxRotate;
+    const rotateX = -(mouseY / (rect.height / 2)) * maxRotate;
+
+    // Áp dụng rotation với GSAP
+    gsap.to(slide, {
+      rotationY: rotateY,
+      rotationX: rotateX,
+      duration: 0.5, // Thời gian animation mượt mà
+      ease: "power2.out",
+      force3D: true,
+    });
+  });
+
+  // Reset rotation khi chuột rời khỏi slide
+  slide.addEventListener("mouseleave", () => {
+    gsap.to(slide, {
+      rotationY: 0,
+      rotationX: 0,
+      duration: 0.5,
+      ease: "power2.out",
+      force3D: true,
+    });
+  });
 }
 
 // Hàm khởi tạo cho màn hình lớn (≥768px)
@@ -114,7 +155,7 @@ function initializesliderForLargeScreens() {
     });
   }
 
-  // Thêm class để phân biệt slide trái/phải và khởi tạo vị trí ban đầu
+  // Thêm class để phân biệt slide trái/phải, khởi tạo vị trí ban đầu và thêm hover effect
   reviewSlides.forEach((slide, index) => {
     if (index % 2 === 0) {
       // Slide có index chẵn (0, 2, 4...) -> bên phải
@@ -130,6 +171,9 @@ function initializesliderForLargeScreens() {
       z: `${initialZ}vw`,
       force3D: true,
     });
+
+    // Thêm hover effect cho slide
+    setupHoverEffect(slide);
   });
 
   // Thêm event listener để xử lý scroll
@@ -150,6 +194,8 @@ function cleanupslider() {
       clearProps: "all",
     });
     slide.classList.remove("is--left", "is--right");
+    // Xóa event listener của hover (optional, để tối ưu)
+    slide.replaceWith(slide.cloneNode(true)); // Loại bỏ event listeners bằng cách clone node
   });
 
   // Reset container
